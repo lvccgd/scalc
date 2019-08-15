@@ -3,6 +3,7 @@ package set
 import (
 	"math"
 	"reflect"
+	"sort"
 )
 
 // Slice is generic map type
@@ -34,14 +35,6 @@ func iteratePack(args ...T) Iter {
 	}()
 
 	return ch
-}
-
-// GetItemByIndex returns the item of set by index
-func (set *Set) GetItemByIndex(idx uint) T {
-	if int(idx) >= set.Size() {
-		return nil
-	}
-	return set.data[idx]
 }
 
 // Size returns the current set length
@@ -110,6 +103,7 @@ func iterateSetsPack(key T, sets []*Set) Iter {
 	return ch
 }
 
+// Iterator returns set iterator
 func (set *Set) Iterator() Iter {
 	ch := make(Iter)
 
@@ -128,6 +122,16 @@ func (set *Set) RemoveByKeys(args ...T) {
 	for _, arg := range args {
 		delete(set.data, arg)
 	}
+}
+
+// ToList returns sorted slice
+func (set *Set) ToList() []int {
+	keys := make([]int, 0, set.Size())
+	for key := range set.Iterator() {
+		keys = append(keys, key.(int))
+	}
+	sort.Ints(keys)
+	return keys
 }
 
 // Intersection returns the set which contains all the items in inbound sets,
@@ -164,4 +168,43 @@ func Intersection(sets ...*Set) *Set {
 	}
 
 	return ret
+}
+
+// Difference returns difference of first set and the rest ones
+func Difference(sets ...*Set) *Set {
+	if len(sets) == 0 || sets[0] == nil {
+		return nil
+	}
+
+	ret := sets[0].Clone()
+
+	var idxs []int
+	for idx := range sets {
+		idxs = append(idxs, idx)
+	}
+	idxs = append(idxs[:0], idxs[1:]...)
+
+	for _, idx := range idxs {
+		for key := range sets[idx].Iterator() {
+			ret.RemoveByKeys(key)
+		}
+	}
+
+	return ret
+}
+
+// Union returns union of all sets
+func Union(sets ...*Set) *Set {
+	if len(sets) == 0 {
+		return nil
+	}
+
+	ret := make(Slice, 0)
+	for _, set := range sets {
+		for key := range set.Iterator() {
+			ret[key] = struct{}{}
+		}
+	}
+
+	return &Set{ret}
 }
