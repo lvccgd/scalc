@@ -6,15 +6,8 @@ import (
 )
 
 func TestGetItemByIndex(t *testing.T) {
-	set := CreateSet()
-	if set.GetItemByIndex(0) != nil {
+	if set := CreateSet(); set.GetItemByIndex(0) != nil {
 		t.Error("Out of range missed")
-	}
-}
-
-func TestCopyNewItemsIntoSet(t *testing.T) {
-	if set := CreateSet(1, 2, 3); set == nil || set.GetItemByIndex(2) != 3 {
-		t.Error("Create non empty set fall")
 	}
 }
 
@@ -27,6 +20,21 @@ func TestCreateEmptySet(t *testing.T) {
 func TestCreateNonEmptySet(t *testing.T) {
 	if set := CreateSet(1, 2, 3); set == nil || set.GetItemByIndex(2) != 3 {
 		t.Error("Create non empty set fall")
+	}
+}
+
+func TestClone(t *testing.T) {
+	set := CreateSet(1, 2, 3)
+	clone := set.Clone()
+	if !clone.Equal(set) {
+		t.Error(fmt.Errorf("Origin: %#v Clone: %#v", set, clone))
+	}
+}
+
+func TestContains(t *testing.T) {
+	set := CreateSet(1, 2, 3)
+	if !set.Contains(1, 3) {
+		t.Error(fmt.Errorf("Origin: %#v", set))
 	}
 }
 
@@ -45,13 +53,13 @@ func TestIntersection(t *testing.T) {
 			caseC:  useCaseC,
 			expect: CreateSet(3, 4),
 		},
+		{
+		},
 	}
 
 	for _, useCase := range useCases {
-		set, err := Intersection(useCase.caseB, useCase.caseC)
-		if err != nil {
-			t.Error(err)
-		}
+		set := Intersection(useCase.caseB, useCase.caseC)
+		fmt.Println(set)
 		if !useCase.expect.Equal(set) {
 			t.Error(fmt.Errorf("Expected: %#v Acctual: %#v", useCase.expect, set))
 		}

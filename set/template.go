@@ -9,3 +9,6 @@ type Iter chan T
 type optimal struct {
 	length, idx T
 }
+
+// Predicate function type
+type Predicate func(args T) bool
