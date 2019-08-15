@@ -1,7 +1,8 @@
 package set
 
 import (
-	"fmt"
+	"math"
+	"reflect"
 )
 
 // Slice is generic slice type
@@ -12,20 +13,27 @@ type Set struct {
 	data Slice
 }
 
-// NewSet (size int) *Set - method which create Set's DTO
+// CreateSet - factory method to create a new Set
 // Returns pointer on created set
-func newSet(size uint) *Set {
-	return &Set{make(Slice, size)}
+func CreateSet(args ...T) *Set {
+	arr := make(Slice, 0, 1)
+	for item := range newSet(args...) {
+		arr = append(arr, item)
+	}
+	return &Set{arr}
 }
 
-// CreateSet (args ...T) *Set - factory method to create a new Set
-// Returns:
-// - pointer on created set
-// - error if it occurs
-func CreateSet(args ...T) (*Set, error) {
-	set := newSet(uint(len(args)))
-	err := set.Copy(args...)
-	return set, err
+// newSet - range over each inbound argument with channel
+func newSet(args ...T) Iter {
+	ch := make(Iter)
+	go func() {
+		for _, arg := range args {
+			ch <- arg
+		}
+		close(ch)
+	}()
+
+	return ch
 }
 
 // GetItemByIndex returns the item of set by index
@@ -36,26 +44,28 @@ func (set *Set) GetItemByIndex(idx uint) T {
 	return set.data[idx]
 }
 
-// Copy - copy additional data in set
-// Returns error if it occurs
-func (set *Set) Copy(args ...T) error {
-	if set.Size() != len(args) {
-		return fmt.Errorf("Too much arguments to copy into set. %+v", set.Size())
-	}
-
-	for idx, arg := range args {
-		set.data[idx] = arg
-	}
-
-	return nil
-}
-
-// Append (args ...T) adds args to set
-func (set *Set) Append(args ...T) {
-	set.data = append(set.data, args...)
-}
-
 // Size returns the current set length
 func (set *Set) Size() int {
 	return len(set.data)
+}
+
+// Equal returns true if
+func (set *Set) Equal(s *Set) bool {
+	return reflect.DeepEqual(set.data, s)
+}
+
+// Intersection returns the set which contains all the elements of all items
+// from inbound sets, but no other elements
+func Intersection(sets ...*Set) (*Set, error) {
+	// Find the shortest set
+	setID := optimal{math.MaxInt64, 0}
+	for idx, set := range sets {
+		if set.Size() < setID.length.(int) {
+			setID = optimal{set.Size(), idx}
+		}
+	}
+
+	// Look for elements from the shortest set in other sets
+
+	return nil, nil
 }
