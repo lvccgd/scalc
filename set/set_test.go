@@ -47,7 +47,6 @@ func TestIntersection(t *testing.T) {
 			caseC:  useCaseC,
 			expect: CreateSet(3, 4),
 		},
-		{},
 	}
 
 	for _, useCase := range useCases {
@@ -101,7 +100,6 @@ func TestUnion(t *testing.T) {
 
 	for _, useCase := range useCases {
 		set := Union(useCase.caseA, useCase.caseB)
-		fmt.Println("Set: ", set)
 		if !useCase.expect.Equal(set) {
 			t.Error(fmt.Errorf("Expected: %#v Acctual: %#v", useCase.expect, set))
 		}
