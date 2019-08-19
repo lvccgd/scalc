@@ -8,10 +8,12 @@
             "name": "Launch",
             "type": "go",
             "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceRoot}",
+            "mode": "auto",
+            "program": "${file}",
             "env": {},
-            "args": []
+            "args": [
+                "[ SUM [ DIF a.txt b.txt c.txt ] [ INT b.txt c.txt ] ]"
+            ]
         }
     ]
 }

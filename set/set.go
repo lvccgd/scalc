@@ -6,18 +6,18 @@ import (
 	"sort"
 )
 
-// Slice is generic map type
-type Slice map[T]struct{}
+// Map is generic map type
+type Map map[T]struct{}
 
 // Set type with required options
 type Set struct {
-	data Slice
+	data Map
 }
 
 // CreateSet - factory method to create a new Set
 // Returns pointer on created set
 func CreateSet(args ...T) *Set {
-	arr := make(Slice, 0)
+	arr := make(Map, 0)
 	for arg := range iteratePack(args...) {
 		arr[arg] = struct{}{}
 	}
@@ -49,7 +49,7 @@ func (set *Set) Equal(s *Set) bool {
 
 // Clone the set
 func (set *Set) Clone() *Set {
-	ret := make(Slice, 0)
+	ret := make(Map, 0)
 	for key := range set.data {
 		ret[key] = struct{}{}
 	}
@@ -125,12 +125,14 @@ func (set *Set) RemoveByKeys(args ...T) {
 }
 
 // ToList returns sorted slice
-func (set *Set) ToList() []int {
-	keys := make([]int, 0, set.Size())
+func (set *Set) ToList() []string {
+	keys := make([]string, 0, set.Size())
 	for key := range set.Iterator() {
-		keys = append(keys, key.(int))
+		keys = append(keys, key.(string))
 	}
-	sort.Ints(keys)
+	sort.Slice(keys[:], func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
 	return keys
 }
 
@@ -199,7 +201,7 @@ func Union(sets ...*Set) *Set {
 		return nil
 	}
 
-	ret := make(Slice, 0)
+	ret := make(Map, 0)
 	for _, set := range sets {
 		for key := range set.Iterator() {
 			ret[key] = struct{}{}
